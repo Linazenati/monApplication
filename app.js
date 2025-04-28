@@ -5,6 +5,7 @@ const app = express();
 
 require("./middlewares")(app);
 require("./routes")(app);
+require('dotenv').config();
 
 
 // Port

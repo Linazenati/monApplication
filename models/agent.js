@@ -10,13 +10,18 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-   Agent.belongsTo(models.Utilisateur, {foreignKey: 'id_user',  // clé étrangère
-      });    }
+   Agent.belongsTo(models.Utilisateur, {foreignKey: 'id',  // clé étrangère
+   });
+    Agent.hasMany(models.Voyage, {foreignKey: 'id_agent',  // clé étrangère
+   });
+      Agent.hasMany(models.Omra, {foreignKey: 'id_agent',  // clé étrangère
+   });
+    
+    }
   }
   Agent.init({
     matricule: DataTypes.STRING,
     dateEmbauche: DataTypes.DATE,
-    id_user: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Agent',

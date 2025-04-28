@@ -37,6 +37,15 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
+// Synchronisation ici    ==>modifie le modele sans supprimer les données
+sequelize.sync({ alter: true })  // Cela applique les changements sans supprimer les données
+  .then(() => {
+    console.log('La base de données est synchronisée avec les nouveaux modèles');
+  })
+  .catch((err) => {
+    console.error('Erreur lors de la synchronisation :', err);
+  });
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

@@ -1,11 +1,10 @@
 // src/services/utilisateur.service.js
 
-const { Utilisateur } = require('../models');
+const { Utilisateur, Client, Agent,Utilisateur_inscrit ,Administrateur } = require('../models');
 const { Op } = require("sequelize"); // Importe les opérateurs Sequelize (comme Op.like pour les filtres avancés)
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-
-const {SECRET_KEY} = require("../config/jwt.config");
+const {SECRET_KEY} = require("../config/jwt.config"); 
 
 
 
@@ -17,40 +16,63 @@ const createUtilisateur = async (data) => {
     ...data,
     password: hashedPassword
   });
-  return utilisateur;
-};
+     
+  console.log("Création de l'utilisateur avec données :", data);
+  console.log("Mot de passe hashé :", hashedPassword);
 
+  if (data.role === 'Utilisateur_inscrit') {
+    await Utilisateur_inscrit.create({ id: utilisateur.id });
+  } else if (data.role === 'agent') {
+    await Agent.create({ id: utilisateur.id });
+  } else if (data.role === 'admin') {
+    await Administrateur.create({ id: utilisateur.id });
+  }
+  else if (data.role === 'client') {
+    await Client.create({ id: utilisateur.id });
+     
+    return utilisateur;
+  };
 
+}
 // ✅ Récupérer tous les utilisateurs avec recherche, pagination et tri
 const getAllUtilisateurs = async ({
-  search = "",              // Mot-clé de recherche (par défaut vide)
-  limit = 50,               // Nombre maximum de résultats à retourner (pagination)
-  offset = 0,               // Position de départ dans les résultats (pagination)
-  orderBy = "createdAt",    // Champ par lequel trier les résultats (ex: "createdAt")
-  orderDir = "DESC"         // Ordre de tri : "ASC" (croissant) ou "DESC" (décroissant)
+  search = "",       // Recherche globale (nom/email/role)
+  role = "",         // Filtre spécifique sur le rôle
+  limit = 5,
+  offset = 0,
+  orderBy = "id",
+  orderDir = "ASC"
 } = {}) => {
-  // Initialisation de la clause WHERE pour les filtres
   const whereClause = {};
 
-  // 🔍 Si un mot-clé de recherche est fourni, ajouter des conditions "LIKE" pour nom, email et rôle
+  // 🔍 Recherche globale
   if (search) {
     whereClause[Op.or] = [
-      { nom: { [Op.like]: `%${search}%` } },     // Filtre sur le champ "nom"
-      { email: { [Op.like]: `%${search}%` } },   // Filtre sur le champ "email"
-      { role: { [Op.like]: `%${search}%` } },    // Filtre sur le champ "role"
+      { nom: { [Op.like]: `%${search}%` } },
+      { email: { [Op.like]: `%${search}%` } },
+      { role: { [Op.like]: `%${search}%` } },
     ];
   }
 
-  // 📦 Exécution de la requête avec Sequelize :
-  // - filtre (where)
-  // - pagination (limit, offset)
-  // - tri (order)
-  return await Utilisateur.findAndCountAll({
-    where: whereClause,
-    limit: parseInt(limit),               // Convertit en entier pour éviter les erreurs
-    offset: parseInt(offset),
-    order: [[orderBy, orderDir]],         // Ex: [['createdAt', 'DESC']]
-  });
+  // 🎯 Filtrage spécifique par rôle
+  if (role) {
+    whereClause.role = role;  // Filtrer uniquement par rôle exact
+  }
+
+  // 🔄 Requête Sequelize
+  try {
+    const users = await Utilisateur.findAndCountAll({
+      where: whereClause,
+      limit: parseInt(limit) || 10,
+      offset: parseInt(offset) || 0,
+      order: [[orderBy || 'id', orderDir || 'ASC']],
+    });
+
+    return { rows: users.rows, count: users.count };
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs", error);
+    throw new Error('Erreur de récupération des utilisateurs');
+  }
 };
 
 
@@ -59,6 +81,13 @@ const getUtilisateurById = async (id) => {
   return await Utilisateur.findByPk(id);
 };
 
+const getUtilisateurByEmail = async (email) => {
+  return await Utilisateur.findOne({ where: { email } });
+};
+
+const getUtilisateurByMatricule = async (matricule) => {
+  return await Utilisateur.findOne({ where: { matricule } });
+};
 
 // ✅ Mettre à jour un utilisateur existant
 const updateUtilisateur = async (id, data) => {
@@ -80,10 +109,11 @@ const deleteUtilisateur = async (id) => {
 };
 
 
+
 // ✅ Login utilisateur
 const login = async (credentials) => {
   const {email, password} = credentials;
-  
+
   const utilisateur = await Utilisateur.findOne({ where: { email } });
   if (!utilisateur) {
     throw new Error("Utilisateur non trouvé");
@@ -105,6 +135,7 @@ const login = async (credentials) => {
     utilisateur: {
       id: utilisateur.id,
       nom: utilisateur.nom,
+      prenom: utilisateur.prenom,
       email: utilisateur.email,
       role: utilisateur.role
     },
@@ -149,6 +180,8 @@ module.exports = {
   createUtilisateur,
   getAllUtilisateurs,
   getUtilisateurById,
+  getUtilisateurByEmail,
+  getUtilisateurByMatricule,
   updateUtilisateur,
   deleteUtilisateur,
   login, logout, register, getCurrentUser

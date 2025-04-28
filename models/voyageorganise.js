@@ -10,9 +10,15 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
-    }
+        VoyageOrganise.belongsTo(models.Agent, {
+        foreignKey: 'id_agent',
+        as: 'agent' // Alias pour accéder à l'agent du voyage
+      });
+
+
+}
   }
+
   VoyageOrganise.init({
     titre: DataTypes.STRING,
     description: DataTypes.TEXT,
@@ -22,6 +28,18 @@ module.exports = (sequelize, DataTypes) => {
     statut: DataTypes.STRING,
     plateforme: DataTypes.STRING,
     image: DataTypes.STRING,
+    estPublie: DataTypes.BOOLEAN,// Ajout du champ estPublie ici
+    id_agent: DataTypes.INTEGER,
+    facebook_post_id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
+  instagram_post_id: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+    },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE
   }, {

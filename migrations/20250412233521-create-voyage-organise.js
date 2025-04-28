@@ -1,4 +1,7 @@
 'use strict';
+
+const { sequelize } = require('../models');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -33,18 +36,26 @@ module.exports = {
       image: {
         type: Sequelize.STRING
       },
+      estPublie: {  // Ajoute ce champ
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,  // Par défaut, non publié
+      },
+      
+      facebook_post_id: {
+         type: Sequelize.STRING,
+         allowNull: true,
+        unique: true
+        },
+        instagram_post_id: {
+         type: Sequelize.STRING,
+           allowNull: true,
+           unique: true
+           },
+
       createdAt: {
         type: Sequelize.DATE
       },
       updatedAt: {
-        type: Sequelize.DATE
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE
       }
     });

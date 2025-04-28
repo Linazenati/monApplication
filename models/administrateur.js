@@ -10,11 +10,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-  Administrateur.belongsTo(models.Utilisateur, {foreignKey:"id_user"} )     
+  Administrateur.belongsTo(models.Utilisateur, {foreignKey:"id"} )     
     }
   }
   Administrateur.init({
-    id_user: DataTypes.INTEGER
+    
   }, {
     sequelize,
     modelName: 'Administrateur',

@@ -25,7 +25,8 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       role: {
-        type: Sequelize.STRING
+        type: Sequelize.ENUM('administrateur','utilisateur_inscrit', 'client', 'agent'),
+        allowNull: false
       },
       
       createdAt: {

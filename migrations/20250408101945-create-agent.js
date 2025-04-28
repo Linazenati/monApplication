@@ -7,7 +7,11 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Utilisateurs", // Table Users
+          key: "id",
+        }
       },
       matricule: {
         type: Sequelize.STRING
@@ -15,14 +19,8 @@ module.exports = {
       dateEmbauche: {
         type: Sequelize.DATE
       },
-      id_user: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-        model: "Utilisateurs", // Table Users
-        key: "id",
-      },
-      },
+      
+      
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

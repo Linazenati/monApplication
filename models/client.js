@@ -10,12 +10,11 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Client.belongsTo (models.Utilisateur, {foreignKey: 'id_user',});  // clé étrangère 
+      Client.belongsTo (models.Utilisateur_inscrit , {foreignKey: 'id',});  // clé étrangère 
     }
-  }
+  }  
   Client.init({
-    adresse: DataTypes.STRING,
-    id_user: DataTypes.INTEGER
+    adresse: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Client',

@@ -10,16 +10,20 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
- Utilisateur.hasMany(models.Agent, {
-        foreignKey: 'id_user', // clé étrangère qui pointe vers Utilisateur
+     Utilisateur.hasMany(models.Agent, {
+        foreignKey: 'id', // clé étrangère qui pointe vers Utilisateur
         as: 'agents' // alias pour l'association
  });
-       Utilisateur.hasMany(models.Administrateur, {
-        foreignKey: 'id_user', // clé étrangère qui pointe vers Utilisateur
+      Utilisateur.hasMany(models.Utilisateur_inscrit, {
+        foreignKey: 'id', // clé étrangère qui pointe vers Utilisateur
+        as: 'utilisateur_inscrits' // alias pour l'association
+       });
+       Utilisateur.hasOne(models.Administrateur, {
+        foreignKey: 'id', // clé étrangère qui pointe vers Utilisateur
         as: 'administrateurs' // alias pour l'association
        });
        Utilisateur.hasMany(models.Client, {
-        foreignKey: 'id_user', // clé étrangère qui pointe vers Utilisateur
+        foreignKey: 'id', // clé étrangère qui pointe vers Utilisateur
         as: 'clients' // alias pour l'association
       });
     }
@@ -32,10 +36,16 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     telephone: DataTypes.INTEGER,
     
-    role: DataTypes.STRING
+    role: {
+      type: DataTypes.ENUM('administrateur', 'client', 'agent','Utilisateur_inscrit'),
+      allowNull: false
+    }
   }, {
     sequelize,
     modelName: 'Utilisateur',
+
+      
+    
   });
   return Utilisateur;
 };

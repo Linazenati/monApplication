@@ -1,16 +1,15 @@
 {
   "development": {
     "username": "root",
-    "password": null,
+    "password": "",
     "database": "agence_voyage",
     "host": "127.0.0.1",
-      "port": 3307,
-
+    "port": 3307,
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": null,
+    "password": "",
     "database": "database_test",
     "host": "127.0.0.1",
     "port": 3307,
@@ -18,7 +17,7 @@
   },
   "production": {
     "username": "root",
-    "password": null,
+    "password": "",
     "database": "database_production",
     "host": "127.0.0.1",
     "port": 3307,

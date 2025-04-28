@@ -2,12 +2,26 @@
 
 const utilisateurService = require('../services/utilisateur.service');
 
-// ✅ Créer un nouvel utilisateur
+// ✅ Créer un nouvel utilisateur AGENT
 const create = async (req, res) => {
-  try {
-    const utilisateur = await utilisateurService.createUtilisateur(req.body);
+   try {
+    const { email } = req.body;
+
+    // Vérifie si un utilisateur avec le même email existe
+    const emailExistant = await utilisateurService.getUtilisateurByEmail(email);
+    if (emailExistant) {
+      return res.status(400).json({ message: "Un utilisateur avec cet email existe déjà." });
+    }
+    const data = {
+      ...req.body,  // Utilise req.body pour récupérer les données envoyées depuis le frontend
+      role: 'agent'
+    };
+    console.log("Requête reçue pour création d'agent :", data); // Affiche les données envoyées
+
+    const utilisateur = await utilisateurService.createUtilisateur(data);
     res.status(201).json(utilisateur);
   } catch (error) {
+    console.error("Erreur dans la création de l'agent :", error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -17,14 +31,16 @@ const create = async (req, res) => {
 const getAll = async (req, res) => {
   try {
     // Récupère les paramètres de query dans l'URL (facultatifs)
-    const { search, limit, offset, orderBy, orderDir } = req.query;
+    const { search, limit, offset, orderBy, orderDir, role } = req.query.params || {};;
+    console.log("Requête reçue avec query :", req.query.params);
 
     const utilisateurs = await utilisateurService.getAllUtilisateurs({
       search,
       limit,
       offset,
       orderBy,
-      orderDir
+      orderDir,
+      role   // Passe le paramètre de rôle au service
     });
 
     res.status(200).json(utilisateurs);
@@ -32,7 +48,6 @@ const getAll = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 // ✅ Récupérer un utilisateur par son ID
 const getOne = async (req, res) => {
@@ -76,11 +91,12 @@ const deleteUtilisateur = async (req, res) => {
 };
 
 
+
 // 🔄 Export des contrôleurs
 module.exports = {
   create,
   getAll,
   getOne,
   update,
-  delete: deleteUtilisateur
+  delete: deleteUtilisateur,
 };
